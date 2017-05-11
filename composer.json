@@ -1,0 +1,35 @@
+{
+    "name": "cawaphp/models",
+    "description": "Сáша models",
+    "keywords": [
+        "cawa",
+        "model",
+        "user"
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "tchiotludo"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Cawa\\Models\\": "src"
+        }
+    },
+    "require": {
+        "php": "~7.0",
+        "cawaphp/cawa" : "dev-master",
+
+        "cawaphp/db": "dev-master",
+        "cawaphp/orm": "dev-master",
+        "cawaphp/renderer": "dev-master",
+        "cawaphp/serializer": "dev-master",
+        "cawaphp/session": "dev-master"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~5.5"
+    }
+}
