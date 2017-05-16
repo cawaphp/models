@@ -517,6 +517,36 @@ class User extends Model
     }
 
     /**
+     * @param string $password
+     *
+     * @return bool
+     */
+    public function changePassword(string $password) : bool
+    {
+        $salt = md5(uniqid((string) random_bytes(128), true));
+
+        $auth = $this->getAuths()->findOne('getType', Auth::TYPE_PASSWORD);
+
+        if (!$auth) {
+            $auth = new Auth();
+            $auth->setType(Auth::TYPE_PASSWORD)
+                ->setUid((string) $this->getId())
+            ;
+
+            $this->getAuths()->add($auth);
+        }
+
+        $auth->setData([
+            'salt' => $salt,
+            'password' => self::encodePassword($password, $salt),
+        ]);
+
+        $this->update();
+
+        return true;
+    }
+
+    /**
      * @param string $email
      * @param string $password
      *
@@ -584,7 +614,7 @@ class User extends Model
             $user = self::getByEmail($oauthUser->getEmail());
 
             if (!$user) {
-                $user = new User();
+                $user = new static();
                 $user->setEmail($oauthUser->getEmail())
                     ->setFirstName($oauthUser->getFirstName())
                     ->setLastName($oauthUser->getLastName())
@@ -610,6 +640,8 @@ class User extends Model
                 $user->auths = new CollectionModel();
                 $user->auths->add($auth);
                 $user->insert();
+
+                self::emit(new Event('user.register', $auth));
             }
 
             $user->updateLoginDate($auth, false);
@@ -990,9 +1022,25 @@ class User extends Model
 
         $started = $db->startTransactionIf();
 
-        if (self::getByEmail($this->email)) {
+        if ($user = self::getByEmail($this->email)) {
             $db->rollback();
-            throw new Duplicate('global.user/errors/emailDuplicate');
+
+            if ($user->getAuths()->findOne('getType', Auth::TYPE_PASSWORD)) {
+                throw new Duplicate('global.user/errors/emailDuplicate');
+            } else {
+                $auths = $user->getAuths()->findDifferent('getType', Auth::TYPE_TOKEN)->sort(function(Auth $a, Auth $b)
+                {
+                    return $a->getLoginDate()->getTimestamp() > $b->getLoginDate()->getTimestamp() ? -1 :  1;
+                });
+
+                if ($auths->count() == 0) {
+                    throw new Duplicate('global.user/errors/emailDuplicate');
+                } else {
+                    throw new Duplicate('global.user/errors/emailDuplicateSocial', [
+                        '%provider%' => self::trans('global.user/socials/' . strtolower($auths->first()->getType()))
+                    ]);
+                }
+            }
         }
 
         list($cols, $data) = $this->saveQuery(true);

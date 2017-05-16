@@ -24,6 +24,7 @@ class Token extends Model
     //region Constants
 
     const EMAIL_CONFIRMATION = 'EMAIL_CONFIRMATION';
+    const CHANGE_PASSWORD = 'CHANGE_PASSWORD';
 
     //endregion
 
@@ -156,7 +157,7 @@ class Token extends Model
         $this->date = new DateTime();
         $this->token = md5(uniqid((string) random_bytes(128), true));
 
-        $sql = 'INSERT INTO tbl_commons_token
+        $sql = 'REPLACE INTO tbl_commons_token
                 SET token_type = :type, 
                     token_external_id = :externalId,
                     token_date = :date,

@@ -99,7 +99,7 @@ CREATE TABLE `tbl_commons_change` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
 
 CREATE TABLE `tbl_commons_token` (
-  `token_type` enum('EMAIL_CONFIRMATION') NOT NULL,
+  `token_type` enum('EMAIL_CONFIRMATION', 'CHANGE_PASSWORD') NOT NULL,
   `token_external_id` int(11) unsigned NOT NULL,
   `token_token` varchar(32) NOT NULL,
   `token_date` datetime NOT NULL,
