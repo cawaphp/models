@@ -99,6 +99,9 @@ class User extends Model
     public function setEmail(string $email) : self
     {
         if ($this->email !== $email) {
+
+            $this->controlEmail($email);
+
             $this->email = strtolower($email);
 
             $this->addChangedProperties('email', $this->email);
@@ -480,10 +483,11 @@ class User extends Model
 
     /**
      * @param string $password
+     * @param string $referer
      *
      * @return bool
      */
-    public function signUpWithPassword(string $password) : bool
+    public function signUpWithPassword(string $password, string $referer) : bool
     {
         $db = self::db(self::class);
         $started = $db->startTransactionIf();
@@ -504,7 +508,9 @@ class User extends Model
 
         $this->update();
 
-        self::emit(new Event('user.register', $auth));
+        self::emit(new Event('user.register', $auth, null, [
+            'referer' => $referer
+        ]));
 
         $this->logged = true;
         $this->signed = true;
@@ -783,7 +789,7 @@ class User extends Model
         $cookieValue = $token . '|' . $this->id;
         $cookieValue .= '|' . hash_hmac('sha256', $cookieValue, DI::config()->get('models/user/cookieToken'));
 
-        self::response()->addCookie(new Cookie(self::COOKIE_TOKEN, $cookieValue, (new DateTime())->addYear(1)));
+        self::response()->setCookie(new Cookie(self::COOKIE_TOKEN, $cookieValue, (new DateTime())->addYear(1)));
     }
 
     /**
@@ -1010,20 +1016,18 @@ class User extends Model
     }
 
     /**
-     * @param int $userId
+     * @param string $email
      *
      * @throws Duplicate
-     *
-     * @return bool
      */
-    public function insert(int $userId = null) : bool
+    private function controlEmail(string $email)
     {
         $db = self::db(self::class);
 
-        $started = $db->startTransactionIf();
-
-        if ($user = self::getByEmail($this->email)) {
-            $db->rollback();
+        if ($user = self::getByEmail($email)) {
+            if ($db->isTransactionStarted()) {
+                $db->rollback();
+            }
 
             if ($user->getAuths()->findOne('getType', Auth::TYPE_PASSWORD)) {
                 throw new Duplicate('global.user/errors/emailDuplicate');
@@ -1042,6 +1046,21 @@ class User extends Model
                 }
             }
         }
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @throws Duplicate
+     *
+     * @return bool
+     */
+    public function insert(int $userId = null) : bool
+    {
+        $db = self::db(self::class);
+
+        $started = $db->startTransactionIf();
+        $this->controlEmail($this->email);
 
         list($cols, $data) = $this->saveQuery(true);
 

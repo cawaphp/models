@@ -102,6 +102,7 @@ CREATE TABLE `tbl_commons_token` (
   `token_type` enum('EMAIL_CONFIRMATION', 'CHANGE_PASSWORD') NOT NULL,
   `token_external_id` int(11) unsigned NOT NULL,
   `token_token` varchar(32) NOT NULL,
+  `token_data` mediumtext,
   `token_date` datetime NOT NULL,
   PRIMARY KEY (`token_type`,`token_external_id`),
   UNIQUE KEY `ix_token_type` (`token_token`)

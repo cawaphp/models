@@ -94,6 +94,31 @@ class Token extends Model
     }
 
     /**
+     * @var array
+     */
+    private $data;
+
+    /**
+     * @return array
+     */
+    public function getData() : array
+    {
+        return $this->data ?? [];
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return Token
+     */
+    public function setData(array $data) : Token
+    {
+        $this->data = $data;
+
+        return $this;
+    }
+
+    /**
      * @var DateTime
      */
     private $date;
@@ -141,6 +166,9 @@ class Token extends Model
         $this->externalId = $result['token_external_id'];
         $this->date = $result['token_date'];
         $this->token = $result['token_token'];
+        $this->data =  $result['token_data'] ?
+            self::decodeData($result['token_data']) :
+            $result['token_data'];
     }
 
     //endregion
@@ -148,26 +176,35 @@ class Token extends Model
     //region Db Alter
 
     /**
+     * @param bool $readable
+     *
      * @return bool
      */
-    public function insert() : bool
+    public function insert(bool $readable = false) : bool
     {
         $db = self::db(self::class);
 
         $this->date = new DateTime();
-        $this->token = md5(uniqid((string) random_bytes(128), true));
+
+        if ($readable) {
+            $this->token = (string) mt_rand(100000, 999999);
+        } else {
+            $this->token = md5(uniqid((string) random_bytes(128), true));
+        }
 
         $sql = 'REPLACE INTO tbl_commons_token
                 SET token_type = :type, 
                     token_external_id = :externalId,
                     token_date = :date,
-                    token_token = :token';
+                    token_token = :token,
+                    token_data = :data';
 
         $db->query($sql, [
             'type' => $this->type,
             'externalId' => $this->externalId,
             'date' => $this->date,
             'token' => $this->token,
+            'data' => $this->data ? self::encodeData($this->data) : null,
         ]);
 
         return true;
