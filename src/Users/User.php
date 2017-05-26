@@ -404,7 +404,7 @@ class User extends Model
             /** @var Upload $upload */
             $upload = $this->getUpload()->find('getKey', Upload::KEY_IMAGE)[0];
             if (!$upload) {
-                $upload = new Upload();
+                $upload = Upload::factory();
                 $upload->setType(self::MODEL_TYPE);
                 $upload->setExternalId($this->id);
                 $upload->setKey(Upload::KEY_IMAGE);

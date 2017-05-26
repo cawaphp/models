@@ -13,20 +13,23 @@ declare (strict_types = 1);
 
 namespace Cawa\Models\Commons;
 
-use Cawa\App\AbstractApp;
 use Cawa\Core\DI;
 use Cawa\Date\DateTime;
 use Cawa\Db\DatabaseFactory;
 use Cawa\Http\File;
 use Cawa\HttpClient\Adapter\AbstractClient;
 use Cawa\HttpClient\HttpClient;
+use Cawa\Models\Commons\UploadProviders\AbstractProvider;
+use Cawa\Models\Commons\UploadProviders\Database;
+use Cawa\Models\Commons\UploadProviders\Filesystem;
+use Cawa\Models\Commons\UploadProviders\Openstack;
 use Cawa\Net\Uri;
 use Cawa\Orm\CollectionModel;
 use Cawa\Orm\Model;
 use Cawa\Renderer\AssetTrait;
 use Cawa\Renderer\HtmlElement;
 
-class Upload extends Model
+abstract class Upload extends Model
 {
     use DatabaseFactory;
     use AssetTrait;
@@ -34,9 +37,6 @@ class Upload extends Model
     //region Constants
 
     const MODEL_TYPE = 'UPLOAD';
-
-    const PROVIDER_FS = 'FS';
-    const PROVIDER_DB = 'DB';
 
     const KEY_IMAGE = 'IMAGE';
     const KEY_LOGO = 'LOGO';
@@ -46,9 +46,28 @@ class Upload extends Model
     //region Mutator
 
     /**
+     * @param string $provider
+     *
+     * @return AbstractProvider|Filesystem|Openstack|Database
+     */
+    public static function factory(string $provider = null) : AbstractProvider
+    {
+        if (is_null($provider)) {
+            $provider = DI::config()->get('upload/defaultProvider');
+        }
+
+        $class = '\Cawa\Models\Commons\UploadProviders\\' . ucfirst(strtolower($provider));
+        /** @var AbstractProvider $return */
+        $return = new $class();
+        $return->provider = $provider;
+
+        return $return;
+    }
+
+    /**
      * @var int
      */
-    private $id;
+    protected $id;
 
     /**
      * @return int
@@ -175,9 +194,11 @@ class Upload extends Model
     }
 
     /**
+     * Full path with filename & extension
+     *
      * @var string
      */
-    private $path;
+    protected $path;
 
     /**
      * @return string
@@ -206,7 +227,7 @@ class Upload extends Model
     /**
      * @var string
      */
-    private $name;
+    protected $name;
 
     /**
      * @return string
@@ -235,7 +256,7 @@ class Upload extends Model
     /**
      * @var string
      */
-    private $extension;
+    protected $extension;
 
     /**
      * @return string
@@ -264,7 +285,7 @@ class Upload extends Model
     /**
      * @var string
      */
-    private $contentType;
+    protected $contentType;
 
     /**
      * @return string
@@ -293,7 +314,7 @@ class Upload extends Model
     /**
      * @var int
      */
-    private $size;
+    protected $size;
 
     /**
      * @return int
@@ -361,27 +382,7 @@ class Upload extends Model
         return $this->date;
     }
 
-    private $content;
-
-    /**
-     * @return mixed
-     */
-    public function getContent()
-    {
-        return $this->content;
-    }
-
-    /**
-     * @param mixed $content
-     *
-     * @return Upload
-     */
-    public function setContent($content)
-    {
-        $this->content = $content;
-
-        return $this;
-    }
+    protected $content;
 
     //endregion
 
@@ -394,7 +395,6 @@ class Upload extends Model
     {
         $pathInfo = pathinfo($file->getName());
         $this->setContentType($file->getType());
-        $this->setPath('/' . date('Y/m/d'));
         $this->setName(substr($pathInfo['basename'], 0, -strlen($pathInfo['extension']) - 1));
         $this->setExtension($pathInfo['extension']);
         $this->setSize($file->getSize());
@@ -426,7 +426,6 @@ class Upload extends Model
     {
         $url = $uri->get(false);
         $pathInfo = pathinfo($url);
-        $this->setPath('/' . date('Y/m/d'));
 
         $response = (new HttpClient())
             ->setClientOption(AbstractClient::OPTIONS_FOLLOW_REDIRECTION, true)
@@ -513,18 +512,30 @@ class Upload extends Model
     /**
      * @param int $id
      *
-     * @return $this|self|null
+     * @return AbstractProvider
      */
-    public static function getById(int $id)
+    public static function getById(int $id) : ?AbstractProvider
     {
         $db = self::db(self::class);
 
-        $sql = 'SELECT *
+        $sql = 'SELECT 
+                    upload_id,
+                    upload_type,
+                    upload_external_id,
+                    upload_provider,
+                    upload_key,
+                    upload_path,
+                    upload_name,
+                    upload_extension,
+                    upload_content_type,
+                    upload_size,
+                    upload_order,
+                    upload_date 
                 FROM tbl_commons_upload
                 WHERE upload_id = :id 
                     AND upload_deleted IS NULL';
         if ($result = $db->fetchOne($sql, ['id' => $id])) {
-            $return = new static();
+            $return = self::factory($result['upload_provider']);
             $return->map($result);
 
             return $return;
@@ -537,7 +548,7 @@ class Upload extends Model
      * @param string $type
      * @param int $id
      *
-     * @return CollectionModel|$this[]
+     * @return CollectionModel|AbstractProvider[]
      */
     public static function getByExternalId(string $type, int $id) : CollectionModel
     {
@@ -556,9 +567,7 @@ class Upload extends Model
                     upload_content_type,
                     upload_size,
                     upload_order,
-                    upload_date,
-                    NULL AS upload_content,
-                    upload_deleted 
+                    upload_date 
                 FROM tbl_commons_upload
                 WHERE upload_type = :type 
                     AND upload_external_id = :id 
@@ -566,7 +575,7 @@ class Upload extends Model
                 ORDER BY upload_order';
 
         foreach ($db->query($sql, ['type' => $type, 'id' => $id]) as $result) {
-            $item = new static();
+            $item = self::factory($result['upload_provider']);
             $item->map($result);
             $return[] = $item;
         }
@@ -614,7 +623,6 @@ class Upload extends Model
         $this->contentType = $result['upload_content_type'];
         $this->size = $result['upload_size'];
         $this->order = $result['upload_order'];
-        $this->content = $result['upload_content'] ? base64_decode($result['upload_content']) : null;
         $this->date = $result['upload_date'];
     }
 
@@ -628,6 +636,7 @@ class Upload extends Model
         $item->changedProperties['duplicateFrom'] = $item->id;
         $item->id = null;
         $item->externalId = null;
+        $item->content = $item->getContent();
 
         return $item;
     }
@@ -657,7 +666,7 @@ class Upload extends Model
      *
      * @return bool
      */
-    private function save(int $externalId = null) : bool
+    protected function save(int $externalId = null) : bool
     {
         if ($externalId) {
             $this->setExternalId($externalId);
@@ -669,7 +678,6 @@ class Upload extends Model
 
         $db = self::db(self::class);
 
-        $this->provider = self::PROVIDER_DB;
         $this->date = new DateTime();
 
         if (!$this->order) {
@@ -687,10 +695,6 @@ class Upload extends Model
                     upload_size = :size,
                     upload_order = :order,
                     upload_date = :date';
-
-        if ($this->content) {
-            $sql .= ', upload_content = :content';
-        }
 
         if ($this->id) {
             $sql = "UPDATE tbl_commons_upload\n" . $sql . "\nWHERE upload_id = :id";
@@ -714,10 +718,6 @@ class Upload extends Model
             'order' => $this->order,
         ];
 
-        if ($this->content) {
-            $params['content'] = $this->provider == self::PROVIDER_DB ? base64_encode($this->content) : null;
-        }
-
         if ($this->id) {
             $params['id'] = $this->id;
         }
@@ -729,16 +729,6 @@ class Upload extends Model
         }
 
         $this->changedProperties['id'] = $this->id;
-
-        if ($this->content && $this->provider == self::PROVIDER_FS) {
-            // @TODO: remove old item on update
-            $savePath = AbstractApp::getAppRoot() . DI::config()->get('upload/path') . $this->path . '/';
-            if (!file_exists($savePath)) {
-                mkdir($savePath, 0777, true);
-            }
-
-            file_put_contents($savePath . $this->id . '.' . $this->extension, $this->content);
-        }
 
         return true;
     }
