@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace Cawa\Models\Commons;
 
@@ -166,7 +166,7 @@ class Token extends Model
         $this->externalId = $result['token_external_id'];
         $this->date = $result['token_date'];
         $this->token = $result['token_token'];
-        $this->data =  $result['token_data'] ?
+        $this->data = $result['token_data'] ?
             self::decodeData($result['token_data']) :
             $result['token_data'];
     }

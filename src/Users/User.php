@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace Cawa\Models\Users;
 
@@ -47,17 +47,17 @@ class User extends Model
     const MODEL_TYPE = 'USER';
 
     /**
-     * Gender Male
+     * Gender Male.
      */
     const GENDER_MALE = 'M';
 
     /**
-     * Gender Female
+     * Gender Female.
      */
     const GENDER_FEMALE = 'F';
 
     /**
-     *  Token cookie name
+     *  Token cookie name.
      */
     const COOKIE_TOKEN = 'TKN';
 
@@ -99,7 +99,6 @@ class User extends Model
     public function setEmail(string $email) : self
     {
         if ($this->email !== $email) {
-
             $this->controlEmail($email);
 
             $this->email = strtolower($email);
@@ -344,7 +343,7 @@ class User extends Model
             }
         }
 
-        return $this->auths ;
+        return $this->auths;
     }
 
     /**
@@ -509,7 +508,7 @@ class User extends Model
         $this->update();
 
         self::emit(new Event('user.register', $auth, null, [
-            'referer' => $referer
+            'referer' => $referer,
         ]));
 
         $this->logged = true;
@@ -573,7 +572,7 @@ class User extends Model
 
         /** @var $user User */
         /** @var $auth Auth */
-        list($user,  $auth) = $return;
+        list($user, $auth) = $return;
 
         if (self::encodePassword($password, $auth->getData()['salt']) != $auth->getData()['password']) {
             throw new Invalid('global.user/errors/invalidPassword');
@@ -606,7 +605,7 @@ class User extends Model
             // oauth found
             /** @var $user User */
             /** @var $auth Auth */
-            list($user,  $auth) = $return;
+            list($user, $auth) = $return;
 
             if ($auth->getData() !== $oauthUser->getExtraData()) {
                 $auth->setData($oauthUser->getExtraData());
@@ -713,7 +712,7 @@ class User extends Model
 
         /** @var $user User */
         /** @var $auth Auth */
-        list($user,  $auth) = $return;
+        list($user, $auth) = $return;
 
         $hmacCalc = hash_hmac('sha256', implode('|', [
             $token,
@@ -747,7 +746,7 @@ class User extends Model
     }
 
     /**
-     * Add a cookie with token for long session
+     * Add a cookie with token for long session.
      */
     public function addTokenCookie()
     {
@@ -967,7 +966,6 @@ class User extends Model
     //region Db Alter
 
     /**
-     * @return void
      */
     protected function saveDependencies()
     {
@@ -1011,7 +1009,7 @@ class User extends Model
                 'lastName' => $this->lastName,
                 'gender' => $this->gender,
                 'birthday' => $this->birthday,
-            ]
+            ],
         ];
     }
 
@@ -1032,16 +1030,15 @@ class User extends Model
             if ($user->getAuths()->findOne('getType', Auth::TYPE_PASSWORD)) {
                 throw new Duplicate('global.user/errors/emailDuplicate');
             } else {
-                $auths = $user->getAuths()->findDifferent('getType', Auth::TYPE_TOKEN)->sort(function(Auth $a, Auth $b)
-                {
-                    return $a->getLoginDate()->getTimestamp() > $b->getLoginDate()->getTimestamp() ? -1 :  1;
+                $auths = $user->getAuths()->findDifferent('getType', Auth::TYPE_TOKEN)->sort(function (Auth $a, Auth $b) {
+                    return $a->getLoginDate()->getTimestamp() > $b->getLoginDate()->getTimestamp() ? -1 : 1;
                 });
 
                 if ($auths->count() == 0) {
                     throw new Duplicate('global.user/errors/emailDuplicate');
                 } else {
                     throw new Duplicate('global.user/errors/emailDuplicateSocial', [
-                        '%provider%' => self::trans('global.user/socials/' . strtolower($auths->first()->getType()))
+                        '%provider%' => self::trans('global.user/socials/' . strtolower($auths->first()->getType())),
                     ]);
                 }
             }
@@ -1113,7 +1110,7 @@ class User extends Model
                     WHERE user_id = :id';
 
             $db->query($sql, array_merge($data, [
-                'id' => $this->id
+                'id' => $this->id,
             ]));
         }
 
@@ -1170,7 +1167,7 @@ class User extends Model
 
             $db->query($sql, [
                 'id' => $this->id,
-                'date' => new DateTime()
+                'date' => new DateTime(),
             ]);
         }
 

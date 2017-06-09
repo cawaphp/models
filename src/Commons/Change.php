@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace Cawa\Models\Commons;
 
@@ -313,7 +313,7 @@ class Change extends Model
             'date' => $this->date,
             'ip' => $this->ip ? Ip::toLong($this->ip) : null,
             'userId' => $this->userId,
-            'data' => $this->data ? self::encodeData($this->data) : null
+            'data' => $this->data ? self::encodeData($this->data) : null,
         ]);
 
         $this->id = $result->insertedId();

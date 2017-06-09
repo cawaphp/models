@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace Cawa\Models\Users;
 
@@ -27,7 +27,7 @@ class Status extends Model
     const MODEL_TYPE = 'STATUS';
 
     /**
-     * Status: Email verification is done
+     * Status: Email verification is done.
      */
     const VERIFIED = 'VERIFIED';
 

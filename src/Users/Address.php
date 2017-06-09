@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace Cawa\Models\Users;
 
@@ -55,7 +55,7 @@ class Address extends Model
     /**
      * @return bool
      */
-    public function isMain(): bool
+    public function isMain() : bool
     {
         return $this->main;
     }
@@ -65,7 +65,7 @@ class Address extends Model
      *
      * @return $this|self
      */
-    public function setMain(bool $main): self
+    public function setMain(bool $main) : self
     {
         if ($this->main != $main) {
             $this->main = $main;
@@ -94,7 +94,7 @@ class Address extends Model
      *
      * @return $this|self
      */
-    public function setFirstName(string $firstName): self
+    public function setFirstName(string $firstName) : self
     {
         if ($this->firstName != $firstName) {
             $this->firstName = $firstName;
@@ -123,7 +123,7 @@ class Address extends Model
      *
      * @return $this|self
      */
-    public function setLastName(string $lastName): self
+    public function setLastName(string $lastName) : self
     {
         if ($this->lastName != $lastName) {
             $this->lastName = $lastName;
@@ -152,7 +152,7 @@ class Address extends Model
      *
      * @return $this|self
      */
-    public function setSociety(string $society = null): self
+    public function setSociety(string $society = null) : self
     {
         if ($this->society != $society) {
             $this->society = $society;

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace Cawa\Models\Users;
 
@@ -31,37 +31,37 @@ class Auth extends Model
     const MODEL_TYPE = 'AUTH';
 
     /**
-     * Password login
+     * Password login.
      */
     const TYPE_PASSWORD = 'PASSWORD';
 
     /**
-     * Token login
+     * Token login.
      */
     const TYPE_TOKEN = 'TOKEN';
 
     /**
-     * Socials : Facebook
+     * Socials : Facebook.
      */
     const TYPE_FACEBOOK = 'FACEBOOK';
 
     /**
-     * Socials : Google
+     * Socials : Google.
      */
     const TYPE_GOOGLE = 'GOOGLE';
 
     /**
-     * Socials : Twitter
+     * Socials : Twitter.
      */
     const TYPE_TWITTER = 'TWITTER';
 
     /**
-     * Socials : Yahoo
+     * Socials : Yahoo.
      */
     const TYPE_YAHOO = 'YAHOO';
 
     /**
-     * Socials : Microsoft
+     * Socials : Microsoft.
      */
     const TYPE_MICROSOFT = 'MICROSOFT';
 
@@ -179,7 +179,7 @@ class Auth extends Model
     //region Logic
 
     /**
-     * return a user id token
+     * return a user id token.
      *
      * @return string
      */
@@ -286,7 +286,6 @@ class Auth extends Model
     }
 
     /**
-     * @return void
      */
     public function updateLoginDate()
     {
@@ -298,8 +297,9 @@ class Auth extends Model
 
         $db->query($sql, [
             'id' => $this->id,
-            'date' => new DateTime()
+            'date' => new DateTime(),
         ]);
     }
+
     //endregion
 }

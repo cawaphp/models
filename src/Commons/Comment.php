@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace Cawa\Models\Commons;
 
@@ -101,7 +101,7 @@ class Comment extends Model
     /**
      * @return string
      */
-    public function getComment(): string
+    public function getComment() : string
     {
         return $this->comment;
     }
@@ -111,7 +111,7 @@ class Comment extends Model
      *
      * @return $this|self
      */
-    public function setComment(string $comment): self
+    public function setComment(string $comment) : self
     {
         if ($comment !== $this->comment) {
             $this->comment = $comment;
@@ -130,7 +130,7 @@ class Comment extends Model
     /**
      * @return int
      */
-    public function getRating(): int
+    public function getRating() : int
     {
         return $this->rating;
     }
@@ -140,7 +140,7 @@ class Comment extends Model
      *
      * @return $this|self
      */
-    public function setRating(int $rating): self
+    public function setRating(int $rating) : self
     {
         if ($rating !== $this->rating) {
             $this->rating = $rating;
@@ -248,14 +248,14 @@ class Comment extends Model
                 'comment_external_id = :externalId',
                 'comment_type = :type',
                 'comment_user_id = :userId',
-                'comment_date = :date'
+                'comment_date = :date',
             ]),
             array_merge($data, [
                 'externalId' => $this->externalId,
                 'type' => $this->type,
                 'userId' => $this->userId,
-                'date' => $this->date
-            ])
+                'date' => $this->date,
+            ]),
         ];
     }
 

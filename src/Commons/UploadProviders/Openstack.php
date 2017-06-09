@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace Cawa\Models\Commons\UploadProviders;
-
 
 use Cawa\Core\DI;
 use GuzzleHttp\Client;
@@ -41,7 +40,7 @@ class Openstack extends AbstractProvider
             if (isset($options['username'])) {
                 $clientOptions = [
                     'base_uri' => Utils::normalizeUrl($options['authUrl']),
-                    'handler'  => HandlerStack::create(),
+                    'handler' => HandlerStack::create(),
                 ];
 
                 $options['identityService'] = Service::factory(new Client($clientOptions));
@@ -89,7 +88,7 @@ class Openstack extends AbstractProvider
         $this->extension = $pathInfo['extension'];
 
         /** @var \OpenStack\ObjectStore\v1\Models\Object $object */
-        $object = $this->getContainer()->getObject(ltrim($this->path,'/'));
+        $object = $this->getContainer()->getObject(ltrim($this->path, '/'));
         $object->retrieve();
 
         $this->contentType = $object->contentType;
@@ -104,7 +103,8 @@ class Openstack extends AbstractProvider
     public function getContent() : string
     {
         /** @var Stream $download */
-        $download = $this->getContainer()->getObject(ltrim($this->path,'/'))->download();
+        $download = $this->getContainer()->getObject(ltrim($this->path, '/'))->download();
+
         return $download->getContents();
     }
 
@@ -118,7 +118,7 @@ class Openstack extends AbstractProvider
         }
 
         $this->getContainer()->createObject([
-            'name'    => ltrim($this->path,'/'),
+            'name' => ltrim($this->path, '/'),
             'content' => $content,
         ]);
 

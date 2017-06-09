@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace Cawa\Models\Commons\UploadProviders;
 
@@ -41,13 +41,13 @@ class Database extends AbstractProvider
     {
         $db = self::db(self::class);
 
-        $sql = "UPDATE tbl_commons_upload
+        $sql = 'UPDATE tbl_commons_upload
                 SET upload_content = :content
-                WHERE upload_id = :id";
+                WHERE upload_id = :id';
 
         $db->query($sql, [
             'id' => $this->id,
-            'content' => base64_encode($content)
+            'content' => base64_encode($content),
         ]);
 
         return true;

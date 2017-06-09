@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace Cawa\Models\Commons;
 
@@ -194,7 +194,7 @@ abstract class Upload extends Model
     }
 
     /**
-     * Full path with filename & extension
+     * Full path with filename & extension.
      *
      * @var string
      */
