@@ -38,7 +38,7 @@ class Comment extends Model
     /**
      * @return int
      */
-    public function getId() : int
+    public function getId() : ?int
     {
         return $this->id;
     }
@@ -101,7 +101,7 @@ class Comment extends Model
     /**
      * @return string
      */
-    public function getComment() : string
+    public function getComment() : ?string
     {
         return $this->comment;
     }
@@ -130,7 +130,7 @@ class Comment extends Model
     /**
      * @return int
      */
-    public function getRating() : int
+    public function getRating() : ?int
     {
         return $this->rating;
     }
@@ -269,7 +269,6 @@ class Comment extends Model
         $db = self::db(self::class);
 
         $this->date = new DateTime();
-        $this->setUserId($userId);
 
         list($cols, $data) = $this->saveQuery(true);
 
@@ -304,7 +303,7 @@ class Comment extends Model
             'id' => $this->id,
         ]));
 
-        self::emit(new ModelEvent('model.update', $this, $userId));
+        self::emit(new ModelEvent('model.update', $this, $userId ? $this->getUserId() : null));
 
         return true;
     }

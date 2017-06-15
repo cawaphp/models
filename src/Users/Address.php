@@ -272,7 +272,6 @@ class Address extends Model
     {
         $db = self::db(self::class);
 
-        $this->user = $user;
         $this->userId = $user->getId();
 
         $sql = 'INSERT INTO tbl_users_address

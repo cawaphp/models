@@ -19,6 +19,7 @@ use Cawa\Db\DatabaseFactory;
 use Cawa\Http\File;
 use Cawa\HttpClient\Adapter\AbstractClient;
 use Cawa\HttpClient\HttpClient;
+use Cawa\HttpClient\HttpClientFactory;
 use Cawa\Models\Commons\UploadProviders\AbstractProvider;
 use Cawa\Models\Commons\UploadProviders\Database;
 use Cawa\Models\Commons\UploadProviders\Filesystem;
@@ -32,6 +33,7 @@ use Cawa\Renderer\HtmlElement;
 abstract class Upload extends Model
 {
     use DatabaseFactory;
+    use HttpClientFactory;
     use AssetTrait;
 
     //region Constants
@@ -427,7 +429,7 @@ abstract class Upload extends Model
         $url = $uri->get(false);
         $pathInfo = pathinfo($url);
 
-        $response = (new HttpClient())
+        $response = self::httpClient(self::class)
             ->setClientOption(AbstractClient::OPTIONS_FOLLOW_REDIRECTION, true)
             ->get($url);
 

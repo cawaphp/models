@@ -24,6 +24,7 @@
         "cawaphp/cawa" : "dev-master",
 
         "cawaphp/db": "dev-master",
+        "cawaphp/httpclient" : "dev-master",
         "cawaphp/orm": "dev-master",
         "cawaphp/renderer": "dev-master",
         "cawaphp/serializer": "dev-master",
