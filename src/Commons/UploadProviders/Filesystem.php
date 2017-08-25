@@ -43,6 +43,7 @@ class Filesystem extends AbstractProvider
     {
         if (!$this->path) {
             $this->setPath($this->getDefaultPath());
+            $this->save();
         }
 
         if (!file_exists(dirname($this->getStoragePath()))) {

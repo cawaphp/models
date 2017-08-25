@@ -28,8 +28,7 @@ class Database extends AbstractProvider
 
         $sql = 'SELECT upload_content
                 FROM tbl_commons_upload
-                WHERE upload_id = :id 
-                    AND upload_deleted IS NULL';
+                WHERE upload_id = :id';
 
         return base64_decode($db->fetchOne($sql, ['id' => $this->id])['upload_content']);
     }

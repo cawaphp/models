@@ -204,7 +204,8 @@ class Auth extends Model
         $db = self::db(self::class);
         $sql = 'SELECT *
                 FROM tbl_users_auth
-                WHERE auth_user_id = :userId';
+                WHERE auth_user_id = :userId
+                    AND auth_deleted IS NULL';
         foreach ($db->query($sql, ['userId' => $id]) as $result) {
             $item = new static();
             $item->map($result);
@@ -214,6 +215,39 @@ class Auth extends Model
         $collection = new CollectionModel($return);
 
         return $collection;
+    }
+
+    /**
+     * @param int $id
+     * @param string $type
+     *
+     * @return self|$this
+     */
+    public static function getByUserIdAndType(int $id, string $type) : ?self
+    {
+        $db = self::db(self::class);
+
+        $sql = 'SELECT *
+                FROM tbl_users_auth
+                WHERE auth_user_id = :userId
+                    AND auth_type = :type
+                    AND auth_deleted IS NULL
+                !forUpdate';
+
+        $result = $db->fetchOne($sql, [
+            'userId' => $id,
+            'type' => $type,
+            '!forUpdate' => $db->isTransactionStarted() ? 'FOR UPDATE' : '',
+        ]);
+
+        if ($result) {
+            $return = new static();
+            $return->map($result);
+
+            return $return;
+        }
+
+        return null;
     }
 
     /**
@@ -243,6 +277,15 @@ class Auth extends Model
         $this->userId = $user->getId();
 
         $db = self::db(self::class);
+        $started = $db->startTransactionIf();
+
+        if ($auth = self::getByUserIdAndType($this->userId, $this->type)) {
+            throw new \RuntimeException(sprintf(
+                "Auth '%s' for user '%s' is already set",
+                $this->type,
+                $this->userId
+            ));
+        }
 
         $sql = 'INSERT INTO tbl_users_auth
                 SET auth_user_id = :userId,
@@ -260,6 +303,10 @@ class Auth extends Model
         $this->id = (int) $result->insertedId();
 
         unset($this->changedProperties['data']);
+
+        if (!$started) {
+            $db->commit();
+        }
 
         return true;
     }

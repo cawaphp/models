@@ -115,6 +115,7 @@ class Openstack extends AbstractProvider
     {
         if (!$this->path) {
             $this->setPath($this->getDefaultPath());
+            $this->save();
         }
 
         $this->getContainer()->createObject([

@@ -13,6 +13,7 @@ declare(strict_types = 1);
 
 namespace Cawa\Models\Commons\UploadProviders;
 
+use Cawa\App\AbstractApp;
 use Cawa\Models\Commons\Upload;
 
 abstract class AbstractProvider extends Upload
@@ -46,7 +47,10 @@ abstract class AbstractProvider extends Upload
             throw new \LogicException('Attempt to get default path without id');
         }
 
-        return '/' . date('Y/m/d') . '/' . $this->id . '.' . $this->extension;
+        return '/' . strtolower(AbstractApp::env()) . '/' .
+            $this->getDate()->format('Y/m/d') .
+            '/' . $this->id . '.' . $this->extension
+        ;
     }
 
     /**

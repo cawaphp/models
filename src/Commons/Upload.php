@@ -680,7 +680,9 @@ abstract class Upload extends Model
 
         $db = self::db(self::class);
 
-        $this->date = new DateTime();
+        if (!$this->date) {
+            $this->date = new DateTime();
+        }
 
         if (!$this->order) {
             $this->order = self::getCurrentOrder($this->type, $this->externalId);
