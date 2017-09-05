@@ -16,9 +16,9 @@ namespace Cawa\Models\Commons;
 use Cawa\Core\DI;
 use Cawa\Date\DateTime;
 use Cawa\Db\DatabaseFactory;
+use Cawa\Events\InstanceDispatcherTrait;
 use Cawa\Http\File;
 use Cawa\HttpClient\Adapter\AbstractClient;
-use Cawa\HttpClient\HttpClient;
 use Cawa\HttpClient\HttpClientFactory;
 use Cawa\Models\Commons\UploadProviders\AbstractProvider;
 use Cawa\Models\Commons\UploadProviders\Database;
@@ -35,6 +35,7 @@ abstract class Upload extends Model
     use DatabaseFactory;
     use HttpClientFactory;
     use AssetTrait;
+    use InstanceDispatcherTrait;
 
     //region Constants
 
@@ -680,6 +681,8 @@ abstract class Upload extends Model
 
         $db = self::db(self::class);
 
+        $started = $db->startTransactionIf();
+
         if (!$this->date) {
             $this->date = new DateTime();
         }
@@ -733,6 +736,14 @@ abstract class Upload extends Model
         }
 
         $this->changedProperties['id'] = $this->id;
+
+        $db->instanceDispatcher()->once('db.commit', function () {
+            $this->instanceDispatcher()->emit(new Event('model.save', $this));
+        });
+
+        if (!$started) {
+            $db->commit();
+        }
 
         return true;
     }

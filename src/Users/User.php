@@ -762,6 +762,8 @@ class User extends Model
             $auth->setType(Auth::TYPE_TOKEN)
                 ->setUid((string) $this->id)
             ;
+
+            $this->getAuths()->add($auth);
         }
 
         $token = $auth->generateToken();
