@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Cawa\Models\Commons\UploadProviders\Openstack;
 
@@ -46,7 +46,6 @@ class IdentityV2Service extends Service
 
             $token = $this->model(Token::class);
             $token->populateFromArray((array) $tokenSerialize);
-
         }
 
         return [$token, $serviceUrl];
