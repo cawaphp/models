@@ -31,7 +31,7 @@ class Filesystem extends AbstractProvider
     /**
      * {@inheritdoc}
      */
-    public function getContent() : string
+    protected function getProviderContent() : string
     {
         return file_get_contents($this->getStoragePath());
     }
@@ -39,7 +39,7 @@ class Filesystem extends AbstractProvider
     /**
      * {@inheritdoc}
      */
-    public function saveContent(string $content) : bool
+    protected function saveProviderContent(string $content) : bool
     {
         if (!$this->path) {
             $this->setPath($this->getDefaultPath());

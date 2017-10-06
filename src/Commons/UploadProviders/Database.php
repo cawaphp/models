@@ -22,7 +22,7 @@ class Database extends AbstractProvider
     /**
      * {@inheritdoc}
      */
-    public function getContent() : string
+    protected function getProviderContent() : string
     {
         $db = self::db(self::class);
 
@@ -36,7 +36,7 @@ class Database extends AbstractProvider
     /**
      * {@inheritdoc}
      */
-    public function saveContent(string $content) : bool
+    protected function saveProviderContent(string $content) : bool
     {
         $db = self::db(self::class);
 

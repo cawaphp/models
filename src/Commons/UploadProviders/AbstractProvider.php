@@ -14,10 +14,13 @@ declare(strict_types = 1);
 namespace Cawa\Models\Commons\UploadProviders;
 
 use Cawa\App\AbstractApp;
+use Cawa\Cache\CacheFactory;
 use Cawa\Models\Commons\Upload;
 
 abstract class AbstractProvider extends Upload
 {
+    use CacheFactory;
+
     //region Constants
 
     const PROVIDER_FILESYSTEM = 'FILESYSTEM';
@@ -26,17 +29,46 @@ abstract class AbstractProvider extends Upload
 
     // endregion
 
-    /**
-     * @return string
-     */
-    abstract public function getContent() : string;
+    public function getContent() : string
+    {
+        $cache = self::cache(Upload::class);
+
+        if ($content = $cache->get($cacheKey = 'upload/id/' . $this->id)) {
+            /** @noinspection PhpStrictTypeCheckingInspection */
+            return $content;
+        }
+
+        $content = $this->getProviderContent();
+
+        $cache->set($cacheKey, $content);
+
+        return $content;
+    }
 
     /**
      * @param string $content
      *
      * @return mixed
      */
-    abstract public function saveContent(string $content);
+    public function saveContent(string $content)
+    {
+        $cache = self::cache(Upload::class);
+        $cache->delete('upload/id/' . $this->id);
+
+        return $this->saveProviderContent($content);
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function getProviderContent() : string;
+
+    /**
+     * @param string $content
+     *
+     * @return mixed
+     */
+    abstract protected function saveProviderContent(string $content);
 
     /**
      * @return string

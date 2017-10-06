@@ -98,7 +98,7 @@ class Openstack extends AbstractProvider
     /**
      * {@inheritdoc}
      */
-    public function getContent() : string
+    protected function getProviderContent() : string
     {
         /** @var Stream $download */
         $download = $this->getContainer()->getObject(ltrim($this->path, '/'))->download();
@@ -109,7 +109,7 @@ class Openstack extends AbstractProvider
     /**
      * {@inheritdoc}
      */
-    public function saveContent(string $content) : bool
+    protected function saveProviderContent(string $content) : bool
     {
         if (!$this->path) {
             $this->setPath($this->getDefaultPath());
