@@ -34,7 +34,7 @@ abstract class AbstractProvider extends Upload
         $cache = self::cache(Upload::class);
 
         if ($content = $cache->get($cacheKey = 'upload/id/' . $this->id)) {
-            /** @noinspection PhpStrictTypeCheckingInspection */
+            /* @noinspection PhpStrictTypeCheckingInspection */
             return $content;
         }
 

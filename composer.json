@@ -20,7 +20,7 @@
         }
     },
     "require": {
-        "php": "~7.0",
+        "php": "~7.1",
         "cawaphp/cawa" : "dev-master",
 
         "cawaphp/db": "dev-master",
@@ -31,8 +31,5 @@
         "cawaphp/session": "dev-master",
 
         "php-opencloud/openstack": "^2.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "~5.5"
     }
 }

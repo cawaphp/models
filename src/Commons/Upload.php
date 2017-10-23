@@ -43,6 +43,7 @@ abstract class Upload extends Model
 
     const KEY_IMAGE = 'IMAGE';
     const KEY_LOGO = 'LOGO';
+    const KEY_CONTENT = 'CONTENT';
 
     // endregion
 
@@ -385,7 +386,22 @@ abstract class Upload extends Model
         return $this->date;
     }
 
+    /**
+     * @var string
+     */
     protected $content;
+
+    /**
+     * @param string $content
+     *
+     * @return self|$this
+     */
+    public function setContent(string $content) : self
+    {
+        $this->content = $content;
+
+        return $this;
+    }
 
     //endregion
 
