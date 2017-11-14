@@ -510,8 +510,10 @@ abstract class Upload extends Model
      */
     public function getImage(int $width = null, int $height = null) : HtmlElement
     {
+        $effect = $width || $height ? 'fit[' . $width . ',' . $height . ']' : null;
+
         $element = (new HtmlElement('<img />'))
-            ->addAttribute('src', $this->getUrl('fit[' . $width . ',' . $height . ']')->get());
+            ->addAttribute('src', $this->getUrl($effect)->get());
 
         if ($width) {
             $element->addAttribute('width', (string) $width);
