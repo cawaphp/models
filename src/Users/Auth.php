@@ -61,9 +61,14 @@ class Auth extends Model
     const TYPE_YAHOO = 'YAHOO';
 
     /**
-     * Socials : Microsoft.
+     * Socials : Microsoft
      */
     const TYPE_MICROSOFT = 'MICROSOFT';
+
+    /**
+     * Socials : Microsoft Live
+     */
+    const TYPE_LIVE = 'LIVE';
 
     //endregion
 

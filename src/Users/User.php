@@ -739,6 +739,7 @@ class User extends Model
         }
 
         $auth->updateLoginDate();
+        $user->updateLoginDate($auth);
 
         $user->logged = true;
 

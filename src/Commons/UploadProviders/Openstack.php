@@ -14,15 +14,17 @@ declare(strict_types = 1);
 namespace Cawa\Models\Commons\UploadProviders;
 
 use Cawa\Core\DI;
+use Cawa\HttpClient\HttpClientFactory;
 use Cawa\Models\Commons\UploadProviders\Openstack\IdentityV2Service;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Stream;
-use OpenStack\Common\Transport\HandlerStack;
 use OpenStack\Common\Transport\Utils;
 use OpenStack\ObjectStore\v1\Models\Container;
 
 class Openstack extends AbstractProvider
 {
+    use HttpClientFactory;
+
     /**
      * @var Container
      */
@@ -38,9 +40,9 @@ class Openstack extends AbstractProvider
 
             // Identity v2
             if (isset($options['username'])) {
-                $clientOptions = [
+                $client = self::guzzle(self::class);
+                $clientOptions = $client->getConfig() + [
                     'base_uri' => Utils::normalizeUrl($options['authUrl']),
-                    'handler' => HandlerStack::create(),
                 ];
 
                 $options['identityService'] = IdentityV2Service::factory(new Client($clientOptions));
