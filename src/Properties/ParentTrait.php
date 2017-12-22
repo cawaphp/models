@@ -161,32 +161,49 @@ trait ParentTrait
     }
 
     /**
+     * @var Collection|$this[]
+     */
+    private $parents;
+
+    /**
+     * @param bool $withMe
+     *
      * @return Collection|self[]
      */
-    public function getParentTree() : Collection
+    public function getParents($withMe = true) : Collection
     {
-        $data = [];
+        if (!$this->parents) {
+            $data = [];
 
-        $element = $this;
-        while ($element->parentId) {
-            $data[] = $element->getParent();
-            $element = $element->getParent();
+            $element = $this;
+            while ($element->parentId) {
+                $data[] = $element->getParent();
+                $element = $element->getParent();
+            }
+
+            $data = array_reverse($data);
+
+            $this->parents = new Collection($data);
         }
 
-        $data = array_reverse($data);
-        $data[] = $this;
+        if (!$withMe) {
+            return $this->parents;
+        }
 
-        return new Collection($data);
+        $return = new Collection($this->parents->toArray());
+        return $return->add($this);
     }
 
     /**
+     * @param bool $withMe
+     *
      * @return int[]|array
      */
-    public function getParentTreeIds() : array
+    public function getParentsIds($withMe = true) : array
     {
         $data = [];
 
-        foreach ($this->getParentTree() as $tree) {
+        foreach ($this->getParents($withMe) as $tree) {
             $data[] = $tree->getId();
         }
 
@@ -195,14 +212,15 @@ trait ParentTrait
 
     /**
      * @param string $locale
+     * @param bool $withMe
      *
      * @return string[]|array
      */
-    public function getParentTreeName(string $locale) : array
+    public function getParentsName(string $locale, $withMe = true) : array
     {
         $data = [];
 
-        foreach ($this->getParentTree() as $tree) {
+        foreach ($this->getParents($withMe) as $tree) {
             $data[] = $tree->getName($locale);
         }
 

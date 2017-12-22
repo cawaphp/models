@@ -510,8 +510,10 @@ abstract class Upload extends Model
      */
     public function getImage(int $width = null, int $height = null) : HtmlElement
     {
+        $effect = $width || $height ? 'fit[' . $width . ',' . $height . ']' : null;
+
         $element = (new HtmlElement('<img />'))
-            ->addAttribute('src', $this->getUrl('fit[' . $width . ',' . $height . ']')->get());
+            ->addAttribute('src', $this->getUrl($effect)->get());
 
         if ($width) {
             $element->addAttribute('width', (string) $width);
@@ -522,6 +524,59 @@ abstract class Upload extends Model
         }
 
         return $element;
+    }
+
+    //endregion
+
+    //region ElasticSearch
+
+    /**
+     * @return array
+     */
+    public function searchData() : array
+    {
+        $data = [
+            'upload_id' => $this->id,
+            'upload_external_id' => $this->externalId,
+            'upload_type' => $this->type,
+            'upload_provider' => $this->provider,
+            'upload_key' => $this->key,
+            'upload_path' => $this->path,
+            'upload_name' => $this->name,
+            'upload_extension' => $this->extension,
+            'upload_content_type' => $this->contentType,
+            'upload_size' => $this->size,
+            'upload_order' => $this->order,
+            'upload_date' => $this->date
+        ];
+
+        return $data;
+    }
+
+    /**
+     * @return array
+     */
+    public static function searchMapping() : array
+    {
+        return  [
+            'properties' => [
+                'upload_id' => ['type' => 'long'],
+                'upload_external_id' => ['type' => 'long'],
+                'upload_type' => ['type' => 'keyword'],
+                'upload_provider' => ['type' => 'keyword'],
+                'upload_key' => ['type' => 'keyword'],
+                'upload_path' => ['type' => 'keyword'],
+                'upload_name' => ['type' => 'keyword'],
+                'upload_extension' => ['type' => 'keyword'],
+                'upload_content_type' => ['type' => 'keyword'],
+                'upload_size' => ['type' => 'long'],
+                'upload_order' => ['type' => 'long'],
+                'upload_date' => [
+                    'type' => 'date',
+                    'format' => 'strict_date_optional_time||epoch_millis',
+                ],
+            ],
+        ];
     }
 
     //endregion
@@ -642,7 +697,9 @@ abstract class Upload extends Model
         $this->contentType = $result['upload_content_type'];
         $this->size = $result['upload_size'];
         $this->order = $result['upload_order'];
-        $this->date = $result['upload_date'];
+        $this->date = is_string($result['upload_date']) ?
+            new DateTime($result['upload_date']) :
+            $result['upload_date'];
     }
 
     //endregion
