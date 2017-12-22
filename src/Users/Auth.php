@@ -169,7 +169,7 @@ class Auth extends Model
     /**
      * @return DateTime
      */
-    public function getLoginDate() : DateTime
+    public function getLoginDate() : ?DateTime
     {
         return $this->loginDate;
     }

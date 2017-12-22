@@ -1033,14 +1033,15 @@ class User extends Model
                 throw new Duplicate('global.user/errors/emailDuplicate');
             } else {
                 $auths = $user->getAuths()->findDifferent('getType', Auth::TYPE_TOKEN)->sort(function (Auth $a, Auth $b) {
-                    return $a->getLoginDate()->getTimestamp() > $b->getLoginDate()->getTimestamp() ? -1 : 1;
+                    return ($a->getLoginDate() ? $a->getLoginDate()->getTimestamp() : 0) >
+                        ($b->getLoginDate() ?  $b->getLoginDate()->getTimestamp() : 0) ? -1 : 1;
                 });
 
                 if ($auths->count() == 0) {
                     throw new Duplicate('global.user/errors/emailDuplicate');
                 } else {
                     throw new Duplicate('global.user/errors/emailDuplicateSocial', [
-                        '%provider%' => self::trans('global.user/socials/' . strtolower($auths->first()->getType())),
+                        '%provider%' => self::trans('global.user/socials/type/' . strtolower($auths->first()->getType())),
                     ]);
                 }
             }
