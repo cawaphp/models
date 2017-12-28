@@ -99,7 +99,7 @@ class Address extends Model
         if ($this->firstName != $firstName) {
             $this->firstName = $firstName;
 
-            $this->addChangedProperties('society', $firstName);
+            $this->addChangedProperties('firstName', $firstName);
         }
 
         return $this;
@@ -128,7 +128,7 @@ class Address extends Model
         if ($this->lastName != $lastName) {
             $this->lastName = $lastName;
 
-            $this->addChangedProperties('society', $lastName);
+            $this->addChangedProperties('lastName', $lastName);
         }
 
         return $this;
@@ -142,7 +142,7 @@ class Address extends Model
     /**
      * @return string
      */
-    public function getSociety()
+    public function getSociety() : ?string
     {
         return $this->society;
     }
@@ -187,6 +187,64 @@ class Address extends Model
             $this->address = $address;
 
             $this->addChangedProperties('address', $address->getFormattedAddress());
+        }
+
+        return $this;
+    }
+    
+    /**
+     * @var string
+     */
+    private $detail;
+
+    /**
+     * @return string
+     */
+    public function getDetail() : ?string
+    {
+        return $this->detail;
+    }
+
+    /**
+     * @param string $detail
+     *
+     * @return $this|self
+     */
+    public function setDetail(string $detail = null) : self
+    {
+        if ($this->detail != $detail) {
+            $this->detail = $detail;
+
+            $this->addChangedProperties('detail', $detail);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @var string
+     */
+    private $information;
+
+    /**
+     * @return string
+     */
+    public function getInformation() : ?string
+    {
+        return $this->information;
+    }
+
+    /**
+     * @param string $information
+     *
+     * @return $this|self
+     */
+    public function setInformation(string $information = null) : self
+    {
+        if ($this->information != $information) {
+            $this->information = $information;
+
+            $this->addChangedProperties('information', $information);
         }
 
         return $this;
@@ -257,6 +315,8 @@ class Address extends Model
         $this->society = $result['address_society'];
         $this->address = new GeocoderResult();
         $this->address->jsonUnserialize($result['address_address']);
+        $this->detail = $result['address_detail'];
+        $this->information = $result['address_information'];
     }
 
     //endregion
@@ -280,7 +340,9 @@ class Address extends Model
                     address_firstname = :firstName,
                     address_lastname = :lastName,
                     address_society = :society,
-                    address_address = :address';
+                    address_address = :address,
+                    address_detail = :detail,
+                    address_information = :information';
 
         $result = $db->query($sql, [
             'userId' => $this->userId,
@@ -289,6 +351,8 @@ class Address extends Model
             'lastName' => $this->lastName,
             'society' => $this->society,
             'address' => self::encodeData($this->address),
+            'detail' => $this->detail,
+            'information' => $this->information,
         ]);
 
         $this->id = $result->insertedId();
@@ -311,7 +375,9 @@ class Address extends Model
                     address_firstname = :firstName,
                     address_lastname = :lastName,
                     address_society = :society,
-                    address_address = :address
+                    address_address = :address,
+                    address_detail = :detail,
+                    address_information = :information
                 WHERE address_id = :id';
 
         $db->query($sql, [
@@ -321,6 +387,8 @@ class Address extends Model
             'lastName' => $this->lastName,
             'society' => $this->society,
             'address' => self::encodeData($this->address),
+            'detail' => $this->detail,
+            'information' => $this->information,
         ]);
 
         $this->changedProperties['operation'] = Change::OPERATION_UPDATE;
