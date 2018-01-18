@@ -489,7 +489,7 @@ abstract class Upload extends Model
                 $pathInfo['extension'];
         } else {
             $uri = DI::config()->get('upload/url') .
-                dirname($this->path) . '/' . $this->id . '.' .
+                ($this->path ? dirname($this->path) : '') . '/' . $this->id . '.' .
                 $this->date->getTimestamp() . '.' .
                 ($effects ? 'imm:' . $effects . '.' : '') .
                 $this->extension;
