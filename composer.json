@@ -30,6 +30,6 @@
         "cawaphp/serializer": "dev-master",
         "cawaphp/session": "dev-master",
 
-        "php-opencloud/openstack": "^2.0"
+        "php-opencloud/openstack": "^3.0"
     }
 }

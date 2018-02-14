@@ -31,6 +31,10 @@ abstract class AbstractProvider extends Upload
 
     public function getContent() : string
     {
+        if ($this->content) {
+            return $this->content;
+        }
+
         $cache = self::cache(Upload::class);
 
         if ($content = $cache->get($cacheKey = 'upload/id/' . $this->id)) {

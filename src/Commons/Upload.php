@@ -437,6 +437,32 @@ abstract class Upload extends Model
     }
 
     /**
+     * @param string $buffer
+     * @param string|null $filename
+     * @param string|null $contentType
+     *
+     * @return $this|self
+     */
+    public function setFromBuffer(string $buffer, string $filename = null, string $contentType = null) : self
+    {
+        if ($filename) {
+            $pathInfo = pathinfo($filename);
+
+            $this->setName($pathInfo['filename']);
+            $this->setExtension($pathInfo['extension']);
+        }
+
+        if ($contentType) {
+            $this->setContentType($contentType);
+        }
+
+        $this->setContent($buffer);
+        $this->setSize(sizeof($buffer));
+
+        return $this;
+    }
+
+    /**
      * @param Uri $uri
      *
      * @return $this|self
@@ -646,6 +672,47 @@ abstract class Upload extends Model
                 WHERE upload_type = :type 
                     AND upload_external_id = :id 
                     AND upload_deleted IS NULL
+                ORDER BY upload_order';
+
+        foreach ($db->query($sql, ['type' => $type, 'id' => $id]) as $result) {
+            $item = self::factory($result['upload_provider']);
+            $item->map($result);
+            $return[] = $item;
+        }
+
+        $collection = new CollectionModel($return);
+
+        return $collection;
+    }
+
+    /**
+     * @param string $type
+     * @param int $id
+     *
+     * @return CollectionModel|AbstractProvider[]
+     */
+    public static function getDeletedByExternalId(string $type, int $id) : CollectionModel
+    {
+        $return = [];
+        $db = self::db(self::class);
+
+        $sql = 'SELECT 
+                    upload_id,
+                    upload_type,
+                    upload_external_id,
+                    upload_provider,
+                    upload_key,
+                    upload_path,
+                    upload_name,
+                    upload_extension,
+                    upload_content_type,
+                    upload_size,
+                    upload_order,
+                    upload_date 
+                FROM tbl_commons_upload
+                WHERE upload_type = :type 
+                    AND upload_external_id = :id 
+                    AND upload_deleted IS NOT NULL
                 ORDER BY upload_order';
 
         foreach ($db->query($sql, ['type' => $type, 'id' => $id]) as $result) {
