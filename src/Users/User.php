@@ -567,6 +567,9 @@ class User extends Model
         $return = self::getByEmailAndAuthType($email, Auth::TYPE_PASSWORD);
 
         if (!$return) {
+            $user = new static();
+            $user->controlEmail($email);
+
             throw new Invalid('global.user/errors/emailUnknown');
         }
 
