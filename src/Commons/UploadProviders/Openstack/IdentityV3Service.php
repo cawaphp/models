@@ -19,7 +19,7 @@ use Cawa\Date\DateTime;
 use OpenStack\Identity\v3\Models\Token;
 use OpenStack\Identity\v3\Service;
 
-class IdentityV2Service extends Service
+class IdentityV3Service extends Service
 {
     use CacheFactory;
 
@@ -33,7 +33,7 @@ class IdentityV2Service extends Service
         $cacheData = $cache->get($cacheKey);
 
         if (!$cacheData) {
-            $return = parent::authenticate($options);
+                $return = parent::authenticate($options);
 
             /** @var $token Token */
             list($token, $serviceUrl) = $return;
